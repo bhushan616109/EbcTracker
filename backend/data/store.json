@@ -1,0 +1,86 @@
+{
+  "branches": [
+    {
+      "id": 1,
+      "branch_name": "CSE"
+    },
+    {
+      "id": 2,
+      "branch_name": "CIVIL"
+    },
+    {
+      "id": 3,
+      "branch_name": "MECH"
+    },
+    {
+      "id": 4,
+      "branch_name": "ENTC"
+    }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "name": "Principal User",
+      "email": "principal@example.com",
+      "password": "$2a$10$ejz4dWmzg.1sjSAu9iuScO6ASZBUAWvoVPQ/ukW3qOlipusCBb1eS",
+      "role": "PRINCIPAL",
+      "branch_id": null
+    },
+    {
+      "id": 3,
+      "name": "CSE HOD",
+      "email": "hod.cse@example.com",
+      "password": "$2a$10$ejz4dWmzg.1sjSAu9iuScO6ASZBUAWvoVPQ/ukW3qOlipusCBb1eS",
+      "role": "HOD",
+      "branch_id": 1
+    },
+    {
+      "id": 8,
+      "name": "CIVIL HOD",
+      "email": "hod.civil@example.com",
+      "password": "$2a$10$ejz4dWmzg.1sjSAu9iuScO6ASZBUAWvoVPQ/ukW3qOlipusCBb1eS",
+      "role": "HOD",
+      "branch_id": 2
+    },
+    {
+      "id": 9,
+      "name": "MECH HOD",
+      "email": "hod.mech@example.com",
+      "password": "$2a$10$ejz4dWmzg.1sjSAu9iuScO6ASZBUAWvoVPQ/ukW3qOlipusCBb1eS",
+      "role": "HOD",
+      "branch_id": 3
+    },
+    {
+      "id": 6,
+      "name": "ENTC HOD",
+      "email": "hod.entc@example.com",
+      "password": "$2a$10$ejz4dWmzg.1sjSAu9iuScO6ASZBUAWvoVPQ/ukW3qOlipusCBb1eS",
+      "role": "HOD",
+      "branch_id": 4
+    },
+    {
+      "id": 10,
+      "name": "CIVIL Admin A",
+      "email": "admin.a.civil@example.com",
+      "username": "admin.a.civil",
+      "password": "$2a$10$ejz4dWmzg.1sjSAu9iuScO6ASZBUAWvoVPQ/ukW3qOlipusCBb1eS",
+      "role": "ADMIN",
+      "branch_id": 2,
+      "roll_range_from": 1,
+      "roll_range_to": 13
+    },
+    {
+      "id": 11,
+      "name": "Smitali Rudkar",
+      "email": "Smitali@example.com",
+      "username": "Smitali",
+      "password": "$2a$10$7Ip795H5j6XXNdxbv4REU.Fyq72Q.JRD.wLd23mZoRVSliZ/cjo1y",
+      "role": "ADMIN",
+      "branch_id": 1
+    }
+  ],
+  "guardians": [],
+  "guardianIdCounter": 1,
+  "students": [],
+  "studentIdCounter": 21
+}
