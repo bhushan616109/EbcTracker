@@ -16,11 +16,13 @@ router.post(
   body('name').isString().isLength({ min: 2 }),
   body('username').isString().isLength({ min: 3 }),
   body('password').isLength({ min: 6 }),
+  body('roll_range_from').optional().isInt({ min: 1 }),
+  body('roll_range_to').optional().isInt({ min: 1 }),
   async (req, res) => {
     const errors = validationResult(req)
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() })
     if (!useMem) return res.status(501).json({ message: 'Not implemented for DB mode' })
-    const { name, username, password } = req.body
+    const { name, username, password, roll_range_from, roll_range_to } = req.body
     const existingUsers = store.users || []
     const taken = existingUsers.find((u) => String(u.username || '').toLowerCase() === username.toLowerCase())
     if (taken) return res.status(409).json({ message: 'Username already exists' })
@@ -31,7 +33,9 @@ router.post(
       username,
       password: hash,
       role: ROLES.ADMIN,
-      branch_id: req.user.branch_id
+      branch_id: req.user.branch_id,
+      roll_range_from,
+      roll_range_to
     })
     res.status(201).json({ id: created.id, name: created.name, username, branch_id: created.branch_id })
   }
@@ -58,13 +62,19 @@ router.get(
     const id = Number(req.params.id)
     const admin = (store.users || []).find((u) => u.id === id && u.role === ROLES.ADMIN)
     if (!admin || admin.branch_id !== req.user.branch_id) return res.status(404).json({ message: 'Not found' })
-    const items = (store.students || []).filter((s) => s.created_by_admin_id === admin.id).map((s) => ({
-      id: s.id,
-      name: s.name,
-      roll_no: s.roll_no,
-      class: s.class,
-      semester: s.semester
-    }))
+    const items = (store.students || [])
+      .filter((s) => s.created_by_admin_id === admin.id)
+      .map((s) => ({
+        id: s.id,
+        name: s.name,
+        roll_no: s.roll_no,
+        enrollment_no: s.enrollment_no,
+        class: s.class,
+        semester: s.semester,
+        mobile: s.mobile,
+        parent_mobile: s.parent_mobile,
+        scholarship_status: s.scholarship_status
+      }))
     res.json({ guardian: { id: admin.id, name: admin.name }, items })
   }
 )

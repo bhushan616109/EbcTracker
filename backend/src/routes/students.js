@@ -13,12 +13,12 @@ router.post(
   '/',
   authenticate,
   requireRole(ROLES.ADMIN),
-  body('name').isString().isLength({ min: 2 }),
-  body('roll_no').isString().isLength({ min: 2 }),
-  body('branch_id').isInt(),
+  body('name').isString().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
+  body('roll_no').isString().isLength({ min: 1 }).withMessage('Roll No must be at least 1 character'),
+  body('branch_id').optional().isInt().withMessage('Branch must be a valid integer'),
   body('enrollment_no').optional().isString(),
   body('class').optional().isString(),
-  body('semester').optional().isIn(['I','II','III','IV','V','VI']),
+  body('semester').optional().isIn(['I','II','III','IV','V','VI']).withMessage('Invalid semester'),
   body('mobile').optional().isString(),
   body('parent_mobile').optional().isString(),
   body('local_address').optional().isString(),
@@ -26,28 +26,31 @@ router.post(
   body('parent_occupation').optional().isString(),
   body('scholarship_id').optional().isString(),
   body('scholarship_password').optional().isString(),
-  body('scholarship_status').optional().isIn(Object.values(SCHOLARSHIP_STATUS)),
+  body('scholarship_status').optional().isIn(Object.values(SCHOLARSHIP_STATUS)).withMessage('Invalid scholarship status'),
   body('exam_form_status').optional().isString(),
-  body('prev_results').optional().isObject(),
+  body('prev_results').optional().isObject().withMessage('Previous results must be an object'),
   async (req, res) => {
     const errors = validationResult(req);
-    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    if (!errors.isEmpty()) {
+      console.log('POST /students validation errors:', errors.array(), 'body:', req.body);
+      return res.status(400).json({ errors: errors.array() });
+    }
     try {
-      const { name, roll_no, branch_id } = req.body;
+      const { name, roll_no } = req.body;
+      const branch_id = Number(req.body.branch_id ?? req.user.branch_id);
       if (req.user.branch_id !== branch_id) return res.status(403).json({ message: 'Branch mismatch' });
       if (useMem) {
-        const admin = store.getUserById(req.user.id)
-        if (admin && admin.roll_range_from != null && admin.roll_range_to != null) {
+        if (req.user.roll_range_from != null && req.user.roll_range_to != null) {
           const match = String(roll_no).match(/\d+$/)
           const num = match ? Number(match[0]) : NaN
           if (!Number.isFinite(num)) return res.status(400).json({ message: 'Invalid roll number format' })
-          if (num < Number(admin.roll_range_from) || num > Number(admin.roll_range_to)) {
-            return res.status(403).json({ message: `Roll number out of allowed range ${admin.roll_range_from}-${admin.roll_range_to}` })
+          if (num < Number(req.user.roll_range_from) || num > Number(req.user.roll_range_to)) {
+            return res.status(403).json({ message: `Roll number out of allowed range ${req.user.roll_range_from}-${req.user.roll_range_to}` })
           }
         }
         const currentCount = store.listStudents({ role: ROLES.ADMIN, user: req.user, page: 1, limit: 1000 }).total
         if (currentCount >= 20) return res.status(403).json({ message: 'Limit reached: max 20 students per admin' });
-        const dup = store.getStudentByRollNo(roll_no);
+        const dup = store.getStudentByRollNoInBranch(roll_no, branch_id);
         if (dup) return res.status(409).json({ message: 'Roll number already exists' });
         const created = store.createStudent({
           name,
@@ -198,7 +201,7 @@ router.put(
   authenticate,
   requireRole(ROLES.ADMIN),
   body('name').optional().isString().isLength({ min: 2 }),
-  body('roll_no').optional().isString().isLength({ min: 2 }),
+  body('roll_no').optional().isString().isLength({ min: 1 }),
   body('ebc_status').optional().isIn(Object.values(EBC_STATUS)),
   body('remark').optional({ nullable: true }).isString(),
   async (req, res) => {

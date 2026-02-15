@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { guardianAddStudent, guardianListStudents, fetchExtendedDashboard } from '../services/api'
 import StatusCards from '../components/StatusCards'
+import { Doughnut } from 'react-chartjs-2'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
+ChartJS.register(ArcElement, Tooltip, Legend)
 
 export default function GuardianDashboard() {
   const { user } = useAuth()
@@ -17,6 +20,28 @@ export default function GuardianDashboard() {
     setExtendedTotals(ext.totals || null)
   }
   useEffect(() => { load() }, [])
+  const totals = useMemo(() => ({
+    total: students.length,
+    pending: students.filter(s=>s.scholarship_status==='Pending').length,
+    approved: students.filter(s=>s.scholarship_status==='Approved').length,
+    rejected: students.filter(s=>s.scholarship_status==='Rejected').length,
+    rejected_with_query: students.filter(s=>s.scholarship_status==='Rejected with Query').length
+  }), [students])
+  const donutData = useMemo(() => ({
+    labels: ['Pending', 'Approved', 'Rejected', 'Rejected with Query'],
+    datasets: [{
+      data: [totals.pending, totals.approved, totals.rejected, totals.rejected_with_query],
+      backgroundColor: ['#f59e0b', '#10b981', '#ef4444', '#6366f1']
+    }]
+  }), [totals])
+  const statusColor = (v) => {
+    const key = String(v || '').toLowerCase()
+    if (key === 'approved') return '#10b981'
+    if (key === 'pending') return '#f59e0b'
+    if (key === 'rejected') return '#ef4444'
+    if (key === 'rejected with query') return '#6366f1'
+    return '#374151'
+  }
 
   const onSubmit = async (e) => {
     e.preventDefault()
@@ -56,8 +81,12 @@ export default function GuardianDashboard() {
   return (
     <div>
       <h2>Guardian</h2>
-      <div style={{ marginBottom: 12 }}>
-        <StatusCards totals={{ total: students.length, pending: students.filter(s=>s.ebc_status==='Pending').length, approved: students.filter(s=>s.ebc_status==='Approved').length, rejected: students.filter(s=>s.ebc_status==='Rejected').length, rejected_with_query: students.filter(s=>s.ebc_status==='Rejected with Query').length }} extendedTotals={extendedTotals} />
+      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 12, alignItems: 'stretch', marginBottom: 12 }}>
+        <StatusCards totals={totals} />
+        <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12 }}>
+          <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>Scholarship Status</div>
+          <Doughnut data={donutData} />
+        </div>
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
         <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12, background: '#f9fafb' }}>
@@ -111,7 +140,7 @@ export default function GuardianDashboard() {
                 <th style={{ textAlign: 'left', padding: 8 }}>Name</th>
                 <th style={{ textAlign: 'left', padding: 8 }}>Class</th>
                 <th style={{ textAlign: 'left', padding: 8 }}>Semester</th>
-                <th style={{ textAlign: 'left', padding: 8 }}>Scholarship</th>
+                <th style={{ textAlign: 'left', padding: 8 }}>Scholarship Status</th>
               </tr>
             </thead>
             <tbody>
@@ -122,13 +151,13 @@ export default function GuardianDashboard() {
                   <td style={{ padding: 8 }}>{s.name}</td>
                   <td style={{ padding: 8 }}>{s.class}</td>
                   <td style={{ padding: 8 }}>{s.semester}</td>
-                  <td style={{ padding: 8 }}>{s.scholarship_status || '-'}</td>
+                  <td style={{ padding: 8, color: statusColor(s.scholarship_status) }}>{s.scholarship_status || '-'}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
       </div>
     </div>
+     </div>
   )
 }

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 export default function Login() {
-  const { login, loginGuardian } = useAuth()
+  const { login } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -17,11 +17,7 @@ export default function Login() {
     setLoading(true)
     setError('')
     try {
-      if (role === 'GUARDIAN') {
-        await loginGuardian(email, password)
-      } else {
-        await login(email, password)
-      }
+      await login(email, password)
       navigate('/', { replace: true })
     } catch (err) {
       setError(err?.response?.data?.message || 'Login failed')
@@ -37,8 +33,7 @@ export default function Login() {
       PRINCIPAL: 'principal',
       DEAN: 'dean',
       HOD: 'hod.cse',
-      ADMIN: 'admin.a.cse',
-      GUARDIAN: 'guardian.cse1'
+      ADMIN: 'admin.a.cse'
     }
     setEmail(sample[r] || '')
     setPassword('Password123!')
@@ -69,8 +64,7 @@ export default function Login() {
               <button onClick={() => selectRole('PRINCIPAL')} style={{ padding: 16, borderRadius: 10, border: 'none', background: '#6d28d9', color: '#fff', boxShadow: '0 6px 12px rgba(109,40,217,0.25)' }}>Principal</button>
               <button onClick={() => selectRole('DEAN')} style={{ padding: 16, borderRadius: 10, border: 'none', background: '#0ea5a4', color: '#fff', boxShadow: '0 6px 12px rgba(14,165,164,0.25)' }}>Dean</button>
               <button onClick={() => selectRole('HOD')} style={{ padding: 16, borderRadius: 10, border: 'none', background: '#2563eb', color: '#fff', boxShadow: '0 6px 12px rgba(37,99,235,0.25)' }}>HOD</button>
-              <button onClick={() => selectRole('ADMIN')} style={{ padding: 16, borderRadius: 10, border: 'none', background: '#334155', color: '#fff', boxShadow: '0 6px 12px rgba(51,65,85,0.25)' }}>Guardian (Admin)</button>
-              <button onClick={() => selectRole('GUARDIAN')} style={{ padding: 16, borderRadius: 10, border: 'none', background: '#9333ea', color: '#fff', boxShadow: '0 6px 12px rgba(147,51,234,0.25)' }}>Guardian (Batch)</button>
+              <button onClick={() => selectRole('ADMIN')} style={{ padding: 16, borderRadius: 10, border: 'none', background: '#334155', color: '#fff', boxShadow: '0 6px 12px rgba(51,65,85,0.25)' }}>Guardian</button>
             </div>
             <p style={{ marginTop: 12, color: '#1f2937', textAlign: 'center', fontWeight: 600, fontSize: 16 }}>Choose your role to continue</p>
           </div>
@@ -89,14 +83,14 @@ export default function Login() {
             </button>
           </div>
           <form onSubmit={onSubmit}>
-            <label>{role === 'GUARDIAN' ? 'Username' : 'Email or Username'}</label>
+            <label>Email or Username</label>
             <input value={email} onChange={(e) => setEmail(e.target.value)} type="text" required style={{ width: '100%', marginBottom: 8 }} />
             <label>Password</label>
             <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required style={{ width: '100%', marginBottom: 12 }} />
             {error && <div style={{ color: 'red', marginBottom: 8 }}>{error}</div>}
             <button type="submit" disabled={loading} style={{ padding: '10px 18px', borderRadius: 8, border: 'none', background: '#6d28d9', color: '#fff' }}>{loading ? 'Logging in...' : 'Login'}</button>
             <p style={{ marginTop: 8, color: '#6b7280' }}>
-              Samples: principal, dean, hod.cse, admin.a.cse, guardian.cse1
+              Samples: principal, dean, hod.cse, admin.a.cse
             </p>
           </form>
         </div>

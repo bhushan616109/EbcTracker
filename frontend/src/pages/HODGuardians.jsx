@@ -24,9 +24,8 @@ export default function HODGuardians() {
       name: form.get('name'),
       username: form.get('username'),
       password: form.get('password'),
-      division: form.get('division'),
-      batch_from: Number(form.get('batch_from')),
-      batch_to: Number(form.get('batch_to'))
+      roll_range_from: form.get('roll_range_from'),
+      roll_range_to: form.get('roll_range_to')
     }
     try {
       await createGuardian(payload)
@@ -51,10 +50,9 @@ export default function HODGuardians() {
             <input name="name" placeholder="Name of faculty" required style={{ width: '100%', marginBottom: 8 }} />
             <input name="username" placeholder="Username" required style={{ width: '100%', marginBottom: 8 }} />
             <input name="password" placeholder="Password" type="password" required style={{ width: '100%', marginBottom: 8 }} />
-            <input name="division" placeholder="Division" required style={{ width: '100%', marginBottom: 8 }} />
-            <div style={{ display: 'flex', gap: 8 }}>
-              <input name="batch_from" placeholder="Batch From" type="number" required style={{ width: '50%' }} />
-              <input name="batch_to" placeholder="Batch To" type="number" required style={{ width: '50%' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 8 }}>
+              <input name="roll_range_from" placeholder="Roll range from" type="number" min="1" />
+              <input name="roll_range_to" placeholder="Roll range to" type="number" min="1" />
             </div>
             {error && <div style={{ color: 'red', marginTop: 6 }}>{error}</div>}
             <button type="submit" style={{ marginTop: 8 }}>Add</button>
@@ -67,8 +65,6 @@ export default function HODGuardians() {
               <tr>
                 <th style={{ textAlign: 'left', padding: 8 }}>Name</th>
                 <th style={{ textAlign: 'left', padding: 8 }}>Username</th>
-                <th style={{ textAlign: 'left', padding: 8 }}>Division</th>
-                <th style={{ textAlign: 'left', padding: 8 }}>Batch</th>
                 <th style={{ textAlign: 'left', padding: 8 }}>View</th>
               </tr>
             </thead>
@@ -77,8 +73,6 @@ export default function HODGuardians() {
                 <tr key={g.id}>
                   <td style={{ padding: 8 }}>{g.name}</td>
                   <td style={{ padding: 8 }}>{g.username}</td>
-                  <td style={{ padding: 8 }}>{g.division}</td>
-                  <td style={{ padding: 8 }}>{g.batch_from} - {g.batch_to}</td>
                   <td style={{ padding: 8 }}>
                     <button onClick={async () => {
                       try {
@@ -98,23 +92,31 @@ export default function HODGuardians() {
           {viewError && <div style={{ color: 'red', marginTop: 8 }}>{viewError}</div>}
           {view && (
             <div style={{ marginTop: 16 }}>
-              <h4>Guardian Batch: {view.guardian.name} ({view.guardian.division}) {view.guardian.batch_from}-{view.guardian.batch_to}</h4>
+              <h4>Guardian Students: {view.guardian.name}</h4>
               <table style={{ width: '100%' }}>
                 <thead>
                   <tr>
                     <th style={{ textAlign: 'left', padding: 8 }}>Roll</th>
+                    <th style={{ textAlign: 'left', padding: 8 }}>Enrollment</th>
                     <th style={{ textAlign: 'left', padding: 8 }}>Name</th>
                     <th style={{ textAlign: 'left', padding: 8 }}>Class</th>
                     <th style={{ textAlign: 'left', padding: 8 }}>Semester</th>
+                    <th style={{ textAlign: 'left', padding: 8 }}>Mobile</th>
+                    <th style={{ textAlign: 'left', padding: 8 }}>Parent Mobile</th>
+                    <th style={{ textAlign: 'left', padding: 8 }}>Scholarship</th>
                   </tr>
                 </thead>
                 <tbody>
                   {view.items.map((s) => (
                     <tr key={s.id}>
                       <td style={{ padding: 8 }}>{s.roll_no}</td>
+                      <td style={{ padding: 8 }}>{s.enrollment_no}</td>
                       <td style={{ padding: 8 }}>{s.name}</td>
                       <td style={{ padding: 8 }}>{s.class}</td>
                       <td style={{ padding: 8 }}>{s.semester}</td>
+                      <td style={{ padding: 8 }}>{s.mobile}</td>
+                      <td style={{ padding: 8 }}>{s.parent_mobile}</td>
+                      <td style={{ padding: 8 }}>{s.scholarship_status}</td>
                     </tr>
                   ))}
                 </tbody>

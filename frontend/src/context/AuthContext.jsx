@@ -27,13 +27,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(res.data.user))
   }
 
-  const loginGuardian = async (username, password) => {
-    const res = await axios.post('/auth/login-guardian', { username, password })
-    setToken(res.data.token)
-    setUser(res.data.user)
-    localStorage.setItem('token', res.data.token)
-    localStorage.setItem('user', JSON.stringify(res.data.user))
-  }
+  // unified login via /auth/login supports email or username
 
   const logout = () => {
     setToken('')
@@ -43,7 +37,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, user, login, loginGuardian, logout }}>
+    <AuthContext.Provider value={{ token, user, login, logout }}>
       {children}
     </AuthContext.Provider>
   )

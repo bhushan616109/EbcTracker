@@ -174,9 +174,19 @@ function getUserById(id) {
   return users.find((u) => u.id === Number(id)) || null
 }
 
-function createUser({ name, email, username, password, role, branch_id }) {
+function createUser({ name, email, username, password, role, branch_id, roll_range_from = null, roll_range_to = null }) {
   const id = users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1
-  const user = { id, name, email, username: username || null, password, role, branch_id: role === ROLES.DEAN || role === ROLES.PRINCIPAL ? null : branch_id || null }
+  const user = {
+    id,
+    name,
+    email,
+    username: username || null,
+    password,
+    role,
+    branch_id: role === ROLES.DEAN || role === ROLES.PRINCIPAL ? null : branch_id || null,
+    roll_range_from: roll_range_from != null ? Number(roll_range_from) : null,
+    roll_range_to: roll_range_to != null ? Number(roll_range_to) : null
+  }
   users.push(user)
   persist.save(snapshot())
   return { id: user.id, name: user.name, email: user.email, role: user.role, branch_id: user.branch_id }
@@ -224,7 +234,7 @@ function createStudent(payload) {
   }
   students.unshift(s)
   persist.save(snapshot())
-  return withJoins(s)
+  return s
 }
 
 function createStudentByGuardian(guardian, payload) {
@@ -311,6 +321,13 @@ function updateStudentStatus(id, ebc_status, remark, requester) {
 function getStudentByRollNo(roll_no) {
   return students.find((x) => x.roll_no.toLowerCase() === String(roll_no).toLowerCase()) || null
 }
+function getStudentByRollNoInBranch(roll_no, branch_id) {
+  return students.find(
+    (x) =>
+      x.branch_id === Number(branch_id) &&
+      x.roll_no.toLowerCase() === String(roll_no).toLowerCase()
+  ) || null
+}
 
 function updateStudent(id, fields, requester) {
   const idx = students.findIndex((x) => x.id === Number(id))
@@ -319,7 +336,7 @@ function updateStudent(id, fields, requester) {
   if (requester.role === ROLES.ADMIN && s.created_by_admin_id !== requester.id) return 'FORBIDDEN'
   if (requester.role === ROLES.GUARDIAN && s.guardian_id !== requester.id) return 'FORBIDDEN'
   if (fields.roll_no && fields.roll_no.toLowerCase() !== s.roll_no.toLowerCase()) {
-    const dup = getStudentByRollNo(fields.roll_no)
+    const dup = getStudentByRollNoInBranch(fields.roll_no, s.branch_id)
     if (dup) return 'DUPLICATE'
   }
   const next = {
@@ -450,6 +467,7 @@ module.exports = {
   students,
   getUserByEmail,
   getUserByUsername,
+  getUserById,
   getGuardianByUsername,
   createUser,
   createGuardian,
@@ -459,6 +477,7 @@ module.exports = {
   listStudents,
   getStudentById,
   getStudentByRollNo,
+  getStudentByRollNoInBranch,
   updateStudentStatus,
   updateStudent,
   deleteStudent,

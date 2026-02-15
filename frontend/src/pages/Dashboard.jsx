@@ -20,7 +20,6 @@ export default function Dashboard() {
   const canWrite = user?.role === 'ADMIN'
   const showBranchFilter = user?.role === 'DEAN' || user?.role === 'PRINCIPAL'
   const showAdminBreakdown = user?.role === 'HOD'
-  const [editing, setEditing] = useState(null)
   const [error, setError] = useState('')
   const [branches, setBranches] = useState([])
   const [semesterSel, setSemesterSel] = useState('I')
@@ -62,7 +61,7 @@ export default function Dashboard() {
     const payload = {
       name: form.get('name'),
       roll_no: form.get('roll_no'),
-      branch_id: Number(form.get('branch_id')),
+      branch_id: Number(user?.branch_id),
       enrollment_no: form.get('enrollment_no'),
       class: form.get('class'),
       semester: form.get('semester'),
@@ -91,7 +90,9 @@ export default function Dashboard() {
       e.target.reset()
       await load(students.page)
     } catch (err) {
-      setError(err?.response?.data?.message || 'Create failed')
+      const v = err?.response?.data?.errors
+      if (Array.isArray(v) && v.length) setError(v.map((x) => x.msg).join(', '))
+      else setError(err?.response?.data?.message || 'Create failed')
     }
   }
 
@@ -219,9 +220,6 @@ export default function Dashboard() {
     e.target.reset()
     await load(students.page)
   }
-  const onEdit = (s) => {
-    setEditing(s)
-  }
   const onDelete = async (id) => {
     setError('')
     try {
@@ -231,35 +229,7 @@ export default function Dashboard() {
       setError(err?.response?.data?.message || 'Delete failed')
     }
   }
-  const onUpdateStudent = async (e) => {
-    e.preventDefault()
-    setError('')
-    const form = new FormData(e.target)
-    const id = form.get('id')
-    const name = form.get('name')
-    const roll_no = form.get('roll_no')
-    const ebc_status = form.get('ebc_status')
-    const remark = form.get('remark')
-    try {
-      const payload = {}
-      if (name && name.trim().length > 0) payload.name = name.trim()
-      if (roll_no && roll_no.trim().length > 0) payload.roll_no = roll_no.trim()
-      if (ebc_status && ebc_status.trim().length > 0) payload.ebc_status = ebc_status
-      if (typeof remark !== 'undefined') payload.remark = remark
-      await updateStudent(id, payload)
-      setEditing(null)
-      e.target.reset()
-      await load(students.page)
-    } catch (err) {
-      const vErrors = err?.response?.data?.errors
-      if (Array.isArray(vErrors) && vErrors.length) {
-        const msg = vErrors.map((e) => e.msg).join(', ')
-        setError(msg)
-      } else {
-        setError(err?.response?.data?.message || 'Update failed')
-      }
-    }
-  }
+  // edit feature removed
 
   const branchOptions = useMemo(() => branches.map((b) => ({ id: b.id, name: b.branch_name })), [branches])
 
@@ -304,7 +274,6 @@ export default function Dashboard() {
           total={students.total}
           onPage={(p) => load(p)}
           canWrite={canWrite}
-          onEdit={onEdit}
           onDelete={onDelete}
         />
         <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
@@ -317,7 +286,7 @@ export default function Dashboard() {
           <form onSubmit={onCreate} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12, background: '#f9fafb' }}>
             <h3>Create Student</h3>
             <label>Branch</label>
-            <select name="branch_id" required style={{ width: '100%', marginBottom: 8 }} defaultValue={user?.branch_id} disabled>
+            <select style={{ width: '100%', marginBottom: 8 }} value={user?.branch_id} disabled>
               {branches.filter((b) => b.id === user?.branch_id).map((b) => <option key={b.id} value={b.id}>{b.branch_name}</option>)}
               {!branches.length && <option value={user?.branch_id}>{user?.branch_id}</option>}
             </select>
@@ -376,20 +345,7 @@ export default function Dashboard() {
             <input name="remark" placeholder="Remark (for query)" style={{ width: '100%', marginBottom: 8 }} />
             <button type="submit">Update</button>
           </form>
-          <form onSubmit={onUpdateStudent} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12, background: '#eef2ff' }}>
-            <h3>Edit Student</h3>
-            <input name="id" placeholder="Student ID" required style={{ width: '100%', marginBottom: 8 }} defaultValue={editing?.id || ''} />
-            <input name="name" placeholder="Name" required style={{ width: '100%', marginBottom: 8 }} defaultValue={editing?.name || ''} />
-            <input name="roll_no" placeholder="Roll No" required style={{ width: '100%', marginBottom: 8 }} defaultValue={editing?.roll_no || ''} />
-            <select name="ebc_status" style={{ width: '100%', marginBottom: 8 }} defaultValue={editing?.ebc_status || 'Pending'}>
-              <option value="Pending">Pending</option>
-              <option value="Approved">Approved</option>
-              <option value="Rejected">Rejected</option>
-              <option value="Rejected with Query">Rejected with Query</option>
-            </select>
-            <input name="remark" placeholder="Remark" style={{ width: '100%', marginBottom: 8 }} defaultValue={editing?.remark || ''} />
-            <button type="submit">Save</button>
-          </form>
+          {/* Edit Student form removed */}
         </div>
       )}
       {error && <div style={{ color: '#ef4444', marginTop: 8 }}>{error}</div>}
