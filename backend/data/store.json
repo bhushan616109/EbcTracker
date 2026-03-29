@@ -152,204 +152,204 @@
   "guardianIdCounter": 2,
   "students": [
     {
-      "id": 466,
+      "id": 486,
       "name": "Civil Student 20",
       "roll_no": "CIV020",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected with Query",
       "remark": "Docs verification pending",
-      "created_at": "2026-03-18T17:26:14.005Z"
+      "created_at": "2026-03-19T09:17:13.869Z"
     },
     {
-      "id": 465,
+      "id": 485,
       "name": "Civil Student 19",
       "roll_no": "CIV019",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected",
       "remark": null,
-      "created_at": "2026-03-19T05:26:14.005Z"
+      "created_at": "2026-03-19T21:17:13.869Z"
     },
     {
-      "id": 464,
+      "id": 484,
       "name": "Civil Student 18",
       "roll_no": "CIV018",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Approved",
       "remark": null,
-      "created_at": "2026-03-19T17:26:14.005Z"
+      "created_at": "2026-03-20T09:17:13.869Z"
     },
     {
-      "id": 463,
+      "id": 483,
       "name": "Civil Student 17",
       "roll_no": "CIV017",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Pending",
       "remark": null,
-      "created_at": "2026-03-20T05:26:14.005Z"
+      "created_at": "2026-03-20T21:17:13.869Z"
     },
     {
-      "id": 462,
+      "id": 482,
       "name": "Civil Student 16",
       "roll_no": "CIV016",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected with Query",
       "remark": "Docs verification pending",
-      "created_at": "2026-03-20T17:26:14.005Z"
+      "created_at": "2026-03-21T09:17:13.869Z"
     },
     {
-      "id": 461,
+      "id": 481,
       "name": "Civil Student 15",
       "roll_no": "CIV015",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected",
       "remark": null,
-      "created_at": "2026-03-21T05:26:14.005Z"
+      "created_at": "2026-03-21T21:17:13.869Z"
     },
     {
-      "id": 460,
+      "id": 480,
       "name": "Civil Student 14",
       "roll_no": "CIV014",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Approved",
       "remark": null,
-      "created_at": "2026-03-21T17:26:14.005Z"
+      "created_at": "2026-03-22T09:17:13.869Z"
     },
     {
-      "id": 459,
+      "id": 479,
       "name": "Civil Student 13",
       "roll_no": "CIV013",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Pending",
       "remark": null,
-      "created_at": "2026-03-22T05:26:14.005Z"
+      "created_at": "2026-03-22T21:17:13.869Z"
     },
     {
-      "id": 458,
+      "id": 478,
       "name": "Civil Student 12",
       "roll_no": "CIV012",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected with Query",
       "remark": "Docs verification pending",
-      "created_at": "2026-03-22T17:26:14.005Z"
+      "created_at": "2026-03-23T09:17:13.869Z"
     },
     {
-      "id": 457,
+      "id": 477,
       "name": "Civil Student 11",
       "roll_no": "CIV011",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected",
       "remark": null,
-      "created_at": "2026-03-23T05:26:14.005Z"
+      "created_at": "2026-03-23T21:17:13.869Z"
     },
     {
-      "id": 456,
+      "id": 476,
       "name": "Civil Student 10",
       "roll_no": "CIV010",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Approved",
       "remark": null,
-      "created_at": "2026-03-23T17:26:14.005Z"
+      "created_at": "2026-03-24T09:17:13.869Z"
     },
     {
-      "id": 455,
+      "id": 475,
       "name": "Civil Student 9",
       "roll_no": "CIV009",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Pending",
       "remark": null,
-      "created_at": "2026-03-24T05:26:14.005Z"
+      "created_at": "2026-03-24T21:17:13.869Z"
     },
     {
-      "id": 454,
+      "id": 474,
       "name": "Civil Student 8",
       "roll_no": "CIV008",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected with Query",
       "remark": "Docs verification pending",
-      "created_at": "2026-03-24T17:26:14.005Z"
+      "created_at": "2026-03-25T09:17:13.869Z"
     },
     {
-      "id": 453,
+      "id": 473,
       "name": "Civil Student 7",
       "roll_no": "CIV007",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected",
       "remark": null,
-      "created_at": "2026-03-25T05:26:14.005Z"
+      "created_at": "2026-03-25T21:17:13.869Z"
     },
     {
-      "id": 452,
+      "id": 472,
       "name": "Civil Student 6",
       "roll_no": "CIV006",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Approved",
       "remark": null,
-      "created_at": "2026-03-25T17:26:14.005Z"
+      "created_at": "2026-03-26T09:17:13.869Z"
     },
     {
-      "id": 451,
+      "id": 471,
       "name": "Civil Student 5",
       "roll_no": "CIV005",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Pending",
       "remark": null,
-      "created_at": "2026-03-26T05:26:14.005Z"
+      "created_at": "2026-03-26T21:17:13.869Z"
     },
     {
-      "id": 450,
+      "id": 470,
       "name": "Civil Student 4",
       "roll_no": "CIV004",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected with Query",
       "remark": "Docs verification pending",
-      "created_at": "2026-03-26T17:26:14.005Z"
+      "created_at": "2026-03-27T09:17:13.869Z"
     },
     {
-      "id": 449,
+      "id": 469,
       "name": "Civil Student 3",
       "roll_no": "CIV003",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Rejected",
       "remark": null,
-      "created_at": "2026-03-27T05:26:14.005Z"
+      "created_at": "2026-03-27T21:17:13.869Z"
     },
     {
-      "id": 448,
+      "id": 468,
       "name": "Civil Student 2",
       "roll_no": "CIV002",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Approved",
       "remark": null,
-      "created_at": "2026-03-27T17:26:14.005Z"
+      "created_at": "2026-03-28T09:17:13.869Z"
     },
     {
-      "id": 447,
+      "id": 467,
       "name": "Civil Student 1",
       "roll_no": "CIV001",
       "branch_id": 2,
       "created_by_admin_id": 10,
       "ebc_status": "Pending",
       "remark": null,
-      "created_at": "2026-03-28T05:26:14.005Z"
+      "created_at": "2026-03-28T21:17:13.869Z"
     },
     {
       "id": 306,
@@ -944,18 +944,6 @@
       "created_at": "2026-03-24T08:18:26.129Z"
     },
     {
-      "id": 39,
-      "name": "Bhakti Student 16",
-      "roll_no": "CSE116",
-      "branch_id": 1,
-      "year": "1st Year",
-      "batch": "2023-2027",
-      "created_by_admin_id": 13,
-      "ebc_status": "Rejected with Query",
-      "remark": "Need clarification",
-      "created_at": "2026-03-24T14:18:26.129Z"
-    },
-    {
       "id": 38,
       "name": "Bhakti Student 15",
       "roll_no": "CSE115",
@@ -1172,7 +1160,7 @@
       "created_at": "2026-02-15T08:26:51.476Z"
     }
   ],
-  "studentIdCounter": 467,
+  "studentIdCounter": 487,
   "meetings": [
     {
       "id": 1,

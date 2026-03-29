@@ -88,3 +88,8 @@ export const deleteStudent = async (id) => {
   const res = await axios.delete(`/students/${id}`)
   return res.status === 204
 }
+
+export const fetchMeetings = async (params = {}) => {
+  const res = await axios.get('/dashboard/meetings', { params })
+  return res.data
+}

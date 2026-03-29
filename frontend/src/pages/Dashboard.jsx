@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { fetchDashboard, fetchExtendedDashboard, fetchStudents, createStudent, updateStatus, fetchBranches, deleteStudent } from '../services/api'
+import { fetchDashboard, fetchExtendedDashboard, fetchStudents, createStudent, updateStatus, fetchBranches, deleteStudent, fetchMeetings } from '../services/api'
 import StatusCards from '../components/StatusCards'
 import StatusChart from '../components/StatusChart'
 import BreakdownChart from '../components/BreakdownChart'
@@ -26,6 +26,7 @@ export default function Dashboard() {
   const [branches, setBranches] = useState([])
   const [semesterSel, setSemesterSel] = useState('I')
   const [exporting, setExporting] = useState(false)
+  const [meetings, setMeetings] = useState([])
 
   const load = async (page = 1) => {
     setLoading(true)
@@ -49,6 +50,12 @@ export default function Dashboard() {
         batch: user?.role === 'PRINCIPAL' && batchFilter ? batchFilter : undefined
       })
       setStudents(stu)
+      if (user?.role === 'PRINCIPAL') {
+        const m = await fetchMeetings({ branch_id: showBranchFilter && branchFilter ? Number(branchFilter) : undefined })
+        setMeetings(m.items || m || [])
+      } else {
+        setMeetings([])
+      }
     } finally {
       setLoading(false)
     }
@@ -325,6 +332,35 @@ export default function Dashboard() {
           <button onClick={onExportPdf} disabled={exporting}>Export PDF</button>
         </div>
       </div>
+      {user?.role === 'PRINCIPAL' && (
+        <div style={{ marginTop: 16 }}>
+          <h3>Meetings</h3>
+          <table style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: 8 }}>Date</th>
+                <th style={{ textAlign: 'left', padding: 8 }}>Student</th>
+                <th style={{ textAlign: 'left', padding: 8 }}>Attendance</th>
+                <th style={{ textAlign: 'left', padding: 8 }}>EBC</th>
+                <th style={{ textAlign: 'left', padding: 8 }}>Result</th>
+                <th style={{ textAlign: 'left', padding: 8 }}>Personal</th>
+              </tr>
+            </thead>
+            <tbody>
+              {meetings.map((m) => (
+                <tr key={m.id}>
+                  <td style={{ padding: 8 }}>{m.meeting_date ? String(m.meeting_date).slice(0, 10) : ''}</td>
+                  <td style={{ padding: 8 }}>{m.student_name || m.student_id}</td>
+                  <td style={{ padding: 8 }}>{m.attendance}</td>
+                  <td style={{ padding: 8 }}>{m.ebc_notes || '-'}</td>
+                  <td style={{ padding: 8 }}>{m.result_notes || '-'}</td>
+                  <td style={{ padding: 8 }}>{m.personal_notes || '-'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
       {canWrite && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 16 }}>
           <form onSubmit={onCreate} style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12, background: '#f9fafb' }}>

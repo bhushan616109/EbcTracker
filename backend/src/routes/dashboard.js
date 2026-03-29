@@ -133,4 +133,50 @@ router.get(
   }
 );
 
+router.get(
+  '/meetings',
+  authenticate,
+  query('branch_id').optional().isInt(),
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
+    try {
+      if (useMem) {
+        let arr = (store.meetings || []).slice();
+        if (req.user.role === ROLES.GUARDIAN) {
+          return res.status(403).json({ message: 'Forbidden' });
+        }
+        if (req.user.role === ROLES.ADMIN) {
+          arr = arr.filter((m) => m.created_by_admin_id === req.user.id);
+        } else if (req.user.role === ROLES.HOD) {
+          arr = arr.filter((m) => {
+            const s = (store.students || []).find((x) => x.id === m.student_id);
+            return s && s.branch_id === req.user.branch_id;
+          });
+        } else if (req.user.role === ROLES.DEAN || req.user.role === ROLES.PRINCIPAL) {
+          const branchId = req.query.branch_id ? Number(req.query.branch_id) : null;
+          if (branchId) {
+            arr = arr.filter((m) => {
+              const s = (store.students || []).find((x) => x.id === m.student_id);
+              return s && s.branch_id === branchId;
+            });
+          }
+        }
+        const items = arr
+          .map((m) => {
+            const s = (store.students || []).find((x) => x.id === m.student_id);
+            return { ...m, student_name: s ? s.name : '' };
+          })
+          .sort((a, b) => new Date(b.meeting_date) - new Date(a.meeting_date));
+        return res.json({ items });
+      } else {
+        return res.status(501).json({ message: 'Not implemented for DB mode' });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  }
+);
+
 module.exports = router;
