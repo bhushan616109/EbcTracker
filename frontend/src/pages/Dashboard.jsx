@@ -16,6 +16,8 @@ export default function Dashboard() {
   const [students, setStudents] = useState({ items: [], page: 1, limit: 10, total: 0 })
   const [filters, setFilters] = useState({ status: '', search: '' })
   const [branchFilter, setBranchFilter] = useState('')
+  const [yearFilter, setYearFilter] = useState('')
+  const [batchFilter, setBatchFilter] = useState('')
 
   const canWrite = user?.role === 'ADMIN'
   const showBranchFilter = user?.role === 'DEAN' || user?.role === 'PRINCIPAL'
@@ -37,7 +39,15 @@ export default function Dashboard() {
       } else {
         setExtendedTotals(null)
       }
-      const stu = await fetchStudents({ status: filters.status || undefined, search: filters.search || undefined, page, limit: students.limit })
+      const stu = await fetchStudents({ 
+        status: filters.status || undefined, 
+        search: filters.search || undefined, 
+        page, 
+        limit: students.limit,
+        branch_id: showBranchFilter && branchFilter ? Number(branchFilter) : undefined,
+        year: user?.role === 'PRINCIPAL' && yearFilter ? yearFilter : undefined,
+        batch: user?.role === 'PRINCIPAL' && batchFilter ? batchFilter : undefined
+      })
       setStudents(stu)
     } finally {
       setLoading(false)
@@ -45,7 +55,7 @@ export default function Dashboard() {
   }
 
   useEffect(() => { load(1) }, []) // initial
-  useEffect(() => { load(1) }, [filters, branchFilter]) // reload on filter change
+  useEffect(() => { load(1) }, [filters, branchFilter, yearFilter, batchFilter]) // reload on filter change
   useEffect(() => {
     const init = async () => {
       const list = await fetchBranches()
@@ -62,6 +72,8 @@ export default function Dashboard() {
       name: form.get('name'),
       roll_no: form.get('roll_no'),
       branch_id: Number(user?.branch_id),
+      year: form.get('year'),
+      batch: form.get('batch'),
       enrollment_no: form.get('enrollment_no'),
       class: form.get('class'),
       semester: form.get('semester'),
@@ -240,8 +252,40 @@ export default function Dashboard() {
         {showBranchFilter && (
           <div style={{ marginTop: 8 }}>
             <label>Branch</label>{' '}
-            <select value={branchFilter} onChange={(e) => setBranchFilter(e.target.value)}>
+            <select value={branchFilter} onChange={(e) => {
+              setBranchFilter(e.target.value)
+              setYearFilter('')
+              setBatchFilter('')
+            }}>
+              <option value="">All Branches</option>
               {branchOptions.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
+            </select>
+          </div>
+        )}
+        {user?.role === 'PRINCIPAL' && branchFilter && (
+          <div style={{ marginTop: 8 }}>
+            <label>Year</label>{' '}
+            <select value={yearFilter} onChange={(e) => {
+              setYearFilter(e.target.value)
+              setBatchFilter('')
+            }}>
+              <option value="">All Years</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+          </div>
+        )}
+        {user?.role === 'PRINCIPAL' && branchFilter && yearFilter && (
+          <div style={{ marginTop: 8 }}>
+            <label>Batch</label>{' '}
+            <select value={batchFilter} onChange={(e) => setBatchFilter(e.target.value)}>
+              <option value="">All Batches</option>
+              <option value="2023-2027">2023-2027</option>
+              <option value="2022-2026">2022-2026</option>
+              <option value="2021-2025">2021-2025</option>
+              <option value="2020-2024">2020-2024</option>
             </select>
           </div>
         )}
@@ -290,6 +334,14 @@ export default function Dashboard() {
               {branches.filter((b) => b.id === user?.branch_id).map((b) => <option key={b.id} value={b.id}>{b.branch_name}</option>)}
               {!branches.length && <option value={user?.branch_id}>{user?.branch_id}</option>}
             </select>
+            <label>Year</label>
+            <select name="year" style={{ width: '100%', marginBottom: 8 }}>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+            </select>
+            <input name="batch" placeholder="Batch (e.g. 2023-2027)" style={{ width: '100%', marginBottom: 8 }} />
             <input name="name" placeholder="Name" required style={{ width: '100%', marginBottom: 8 }} />
             <input name="roll_no" placeholder="Roll No" required style={{ width: '100%', marginBottom: 8 }} />
             <input name="enrollment_no" placeholder="Enrollment No" style={{ width: '100%', marginBottom: 8 }} />

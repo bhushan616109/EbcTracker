@@ -4,7 +4,10 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 ChartJS.register(ArcElement, Tooltip, Legend)
 
 export default function BreakdownChart({ breakdown }) {
-  const labels = breakdown.map((b) => b.type === 'branch' ? b.branch_name : b.admin_name)
+  const labels = breakdown.map((b) => {
+    const name = b.type === 'branch' ? b.branch_name : b.admin_name
+    return `${name} (${b.total || 0})`
+  })
   const totals = breakdown.map((b) => b.total)
   const data = {
     labels,

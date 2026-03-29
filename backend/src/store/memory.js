@@ -43,20 +43,47 @@ let students = Array.from({ length: 30 }).map((_, i) => {
     roll_no: `CSE${String(i + 1).padStart(3, '0')}`,
     branch_id: 1,
     created_by_admin_id: 4,
+    year: ['1st Year', '2nd Year', '3rd Year', '4th Year'][i % 4],
+    batch: ['2023-2027', '2022-2026', '2021-2025', '2020-2024'][i % 4],
     ebc_status: status,
     remark: status === EBC_STATUS.REJECTED_WITH_QUERY ? 'Need clarification on documents' : null,
     created_at: new Date(Date.now() - (i + 1) * 24 * 60 * 60 * 1000)
   }
 })
 
+let meetings = []
+let meetingIdCounter = 1
+
 ;(() => {
-  const loaded = persist.loadInitial({ branches, users, guardians, guardianIdCounter, students, studentIdCounter })
+  const loaded = persist.loadInitial({ branches, users, guardians, guardianIdCounter, students, studentIdCounter, meetings, meetingIdCounter })
   branches = loaded.branches || branches
   users = loaded.users || users
   guardians = loaded.guardians || guardians
   guardianIdCounter = loaded.guardianIdCounter || guardianIdCounter
   students = loaded.students || students
   studentIdCounter = loaded.studentIdCounter || studentIdCounter
+  meetings = loaded.meetings || meetings
+  meetingIdCounter = loaded.meetingIdCounter || meetingIdCounter
+})()
+
+;(() => {
+  let changed = false
+  const principal = users.find((u) => u.role === ROLES.PRINCIPAL)
+  if (principal && !principal.username) {
+    principal.username = 'principal'
+    changed = true
+  }
+  const dean = users.find((u) => u.role === ROLES.DEAN)
+  if (dean && !dean.username) {
+    dean.username = 'dean'
+    changed = true
+  }
+  const hodCse = users.find((u) => u.email === 'hod.cse@example.com')
+  if (hodCse && !hodCse.username) {
+    hodCse.username = 'hod.cse'
+    changed = true
+  }
+  if (changed) persist.save(snapshot())
 })()
 
 ;(() => {
@@ -86,13 +113,31 @@ let students = Array.from({ length: 30 }).map((_, i) => {
 })()
 
 ;(() => {
+  const exists = (guardians || []).some((g) => g.username === 'guardian.cse1')
+  if (!exists) {
+    const id = guardianIdCounter++
+    guardians.push({
+      id,
+      name: 'CSE Guardian 1',
+      username: 'guardian.cse1',
+      password: passwordHash,
+      branch_id: 1,
+      division: 'A',
+      batch_from: 2023,
+      batch_to: 2027
+    })
+    persist.save(snapshot())
+  }
+})()
+
+;(() => {
   const before = students.length
   students = students.filter((s) => s.branch_id !== 2)
   if (students.length !== before) persist.save(snapshot())
 })()
 
 function snapshot() {
-  return { branches, users, guardians, guardianIdCounter, students, studentIdCounter }
+  return { branches, users, guardians, guardianIdCounter, students, studentIdCounter, meetings, meetingIdCounter }
 }
 
 function ensureSeed() {
@@ -154,6 +199,129 @@ function ensureCivilAdminSeed() {
 }
 ensureCivilAdminSeed()
 
+function ensureBhaktiAdminSeed() {
+  if (process.env.DEMO_BHAKTI_ADMIN !== 'true') return
+  const cse = branches.find((b) => b.branch_name === 'CSE') || { id: 1 }
+  const email = 'bhakti.admin.cse@example.com'
+  let changed = false
+  let admin = users.find((u) => u.email === email)
+  if (!admin) {
+    const newUserId = users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1
+    admin = { id: newUserId, name: 'Bhakti Admin', email, username: 'admin.bhakti.cse', password: passwordHash, role: ROLES.ADMIN, branch_id: cse.id }
+    users.push(admin)
+    changed = true
+  }
+  const existingCount = students.filter((s) => s.created_by_admin_id === admin.id).length
+  if (existingCount < 20) {
+    const need = 20 - existingCount
+    const statuses = [EBC_STATUS.PENDING, EBC_STATUS.APPROVED, EBC_STATUS.REJECTED, EBC_STATUS.REJECTED_WITH_QUERY]
+    for (let i = 0; i < need; i++) {
+      const status = statuses[i % statuses.length]
+      const year = ['1st Year', '2nd Year', '3rd Year'][i % 3]
+      const batch = year === '1st Year' ? '2023-2027' : year === '2nd Year' ? '2022-2026' : '2021-2025'
+      const id = studentIdCounter++
+      const s = {
+        id,
+        name: `Bhakti Student ${i + 1}`,
+        roll_no: `CSE${String(100 + i + 1).padStart(3, '0')}`,
+        branch_id: cse.id,
+        year,
+        batch,
+        created_by_admin_id: admin.id,
+        ebc_status: status,
+        remark: status === EBC_STATUS.REJECTED_WITH_QUERY ? 'Need clarification' : null,
+        created_at: new Date(Date.now() - (i + 1) * 6 * 60 * 60 * 1000)
+      }
+      students.unshift(s)
+      changed = true
+    }
+  }
+  if (changed) persist.save(snapshot())
+}
+ensureBhaktiAdminSeed()
+
+function ensureMechAdminSeed() {
+  if (process.env.DEMO_MECH_ADMIN !== 'true') return
+  const mech = branches.find((b) => b.branch_name === 'MECH') || { id: 3 }
+  const email = 'admin.a.mech@example.com'
+  let changed = false
+  let admin = users.find((u) => u.email === email)
+  if (!admin) {
+    const newUserId = users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1
+    admin = { id: newUserId, name: 'MECH Admin A', email, username: 'admin.a.mech', password: passwordHash, role: ROLES.ADMIN, branch_id: mech.id }
+    users.push(admin)
+    changed = true
+  }
+  const existingCount = students.filter((s) => s.created_by_admin_id === admin.id).length
+  if (existingCount < 20) {
+    const need = 20 - existingCount
+    const statuses = [EBC_STATUS.PENDING, EBC_STATUS.APPROVED, EBC_STATUS.REJECTED, EBC_STATUS.REJECTED_WITH_QUERY]
+    for (let i = 0; i < need; i++) {
+      const status = statuses[i % statuses.length]
+      const year = ['1st Year', '2nd Year', '3rd Year'][i % 3]
+      const batch = year === '1st Year' ? '2023-2027' : year === '2nd Year' ? '2022-2026' : '2021-2025'
+      const id = studentIdCounter++
+      const s = {
+        id,
+        name: `MECH Student ${i + 1}`,
+        roll_no: `MECH${String(100 + i + 1).padStart(3, '0')}`,
+        branch_id: mech.id,
+        year,
+        batch,
+        created_by_admin_id: admin.id,
+        ebc_status: status,
+        remark: status === EBC_STATUS.REJECTED_WITH_QUERY ? 'Need clarification' : null,
+        created_at: new Date(Date.now() - (i + 1) * 6 * 60 * 60 * 1000)
+      }
+      students.unshift(s)
+      changed = true
+    }
+  }
+  if (changed) persist.save(snapshot())
+}
+ensureMechAdminSeed()
+
+function ensureEntcAdminSeed() {
+  if (process.env.DEMO_ENTC_ADMIN !== 'true') return
+  const entc = branches.find((b) => b.branch_name === 'ENTC') || { id: 4 }
+  const email = 'admin.a.entc@example.com'
+  let changed = false
+  let admin = users.find((u) => u.email === email)
+  if (!admin) {
+    const newUserId = users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1
+    admin = { id: newUserId, name: 'ENTC Admin A', email, username: 'admin.a.entc', password: passwordHash, role: ROLES.ADMIN, branch_id: entc.id }
+    users.push(admin)
+    changed = true
+  }
+  const existingCount = students.filter((s) => s.created_by_admin_id === admin.id).length
+  if (existingCount < 20) {
+    const need = 20 - existingCount
+    const statuses = [EBC_STATUS.PENDING, EBC_STATUS.APPROVED, EBC_STATUS.REJECTED, EBC_STATUS.REJECTED_WITH_QUERY]
+    for (let i = 0; i < need; i++) {
+      const status = statuses[i % statuses.length]
+      const year = ['1st Year', '2nd Year', '3rd Year'][i % 3]
+      const batch = year === '1st Year' ? '2023-2027' : year === '2nd Year' ? '2022-2026' : '2021-2025'
+      const id = studentIdCounter++
+      const s = {
+        id,
+        name: `ENTC Student ${i + 1}`,
+        roll_no: `ENTC${String(100 + i + 1).padStart(3, '0')}`,
+        branch_id: entc.id,
+        year,
+        batch,
+        created_by_admin_id: admin.id,
+        ebc_status: status,
+        remark: status === EBC_STATUS.REJECTED_WITH_QUERY ? 'Need clarification' : null,
+        created_at: new Date(Date.now() - (i + 1) * 6 * 60 * 60 * 1000)
+      }
+      students.unshift(s)
+      changed = true
+    }
+  }
+  if (changed) persist.save(snapshot())
+}
+ensureEntcAdminSeed()
+
 function getBranchName(branch_id) {
   const b = branches.find((x) => x.id === branch_id)
   return b ? b.branch_name : ''
@@ -214,6 +382,8 @@ function createStudent(payload) {
     roll_no: payload.roll_no,
     enrollment_no: payload.enrollment_no || '',
     branch_id: payload.branch_id,
+    year: payload.year || '',
+    batch: payload.batch || '',
     division: payload.division || '',
     class: payload.class || '',
     semester: payload.semester || '',
@@ -229,7 +399,7 @@ function createStudent(payload) {
     prev_results: payload.prev_results || {},
     created_by_admin_id: payload.created_by_admin_id,
     ebc_status: EBC_STATUS.PENDING,
-    remark: null,
+    remark: typeof payload.remark !== 'undefined' ? payload.remark : null,
     created_at: new Date()
   }
   students.unshift(s)
@@ -245,6 +415,8 @@ function createStudentByGuardian(guardian, payload) {
     roll_no: payload.roll_no,
     enrollment_no: payload.enrollment_no || '',
     branch_id: guardian.branch_id,
+    year: payload.year || '',
+    batch: payload.batch || '',
     division: payload.division || guardian.division || '',
     class: payload.class || '',
     semester: payload.semester || '',
@@ -260,12 +432,46 @@ function createStudentByGuardian(guardian, payload) {
     guardian_id: guardian.id,
     created_by_admin_id: null,
     ebc_status: EBC_STATUS.PENDING,
-    remark: null,
+    remark: typeof payload.remark !== 'undefined' ? payload.remark : null,
     created_at: new Date()
   }
   students.unshift(s)
   persist.save(snapshot())
   return s
+}
+
+function createMeeting(user, payload) {
+  const id = meetingIdCounter++
+  const m = {
+    id,
+    student_id: Number(payload.student_id),
+    meeting_date: payload.meeting_date || new Date().toISOString(),
+    attendance: payload.attendance || 'Present',
+    ebc_notes: payload.ebc_notes || '',
+    result_notes: payload.result_notes || '',
+    personal_notes: payload.personal_notes || '',
+    guardian_id: user.role === ROLES.GUARDIAN ? user.id : null,
+    created_by_admin_id: user.role === ROLES.ADMIN ? user.id : null,
+    created_at: new Date()
+  }
+  meetings.unshift(m)
+  persist.save(snapshot())
+  const s = students.find((x) => x.id === m.student_id)
+  return { ...m, student_name: s ? s.name : '' }
+}
+
+function listMeetings(user, student_id) {
+  let arr = meetings.slice()
+  if (user.role === ROLES.GUARDIAN) {
+    arr = arr.filter((m) => m.guardian_id === user.id)
+  } else if (user.role === ROLES.ADMIN) {
+    arr = arr.filter((m) => m.created_by_admin_id === user.id)
+  }
+  if (student_id) arr = arr.filter((m) => m.student_id === Number(student_id))
+  return arr.map((m) => {
+    const s = students.find((x) => x.id === m.student_id)
+    return { ...m, student_name: s ? s.name : '' }
+  })
 }
 
 function withJoins(s) {
@@ -279,14 +485,18 @@ function withJoins(s) {
   }
 }
 
-function listStudents({ role, user, status, search, page = 1, limit = 10 }) {
+function listStudents({ role, user, status, search, page = 1, limit = 10, branch_id, year, batch }) {
   let data = students.slice()
   if (role === ROLES.ADMIN) {
     data = data.filter((s) => s.created_by_admin_id === user.id)
   } else if (role === ROLES.HOD) {
     data = data.filter((s) => s.branch_id === user.branch_id)
-  } else if (role === ROLES.GUARDIAN) {
-    data = data.filter((s) => s.guardian_id === user.id)
+  } else if (role === ROLES.DEAN) {
+    if (branch_id) data = data.filter((s) => s.branch_id === Number(branch_id))
+  } else if (role === ROLES.PRINCIPAL) {
+    if (branch_id) data = data.filter((s) => s.branch_id === Number(branch_id))
+    if (year) data = data.filter((s) => s.year === year)
+    if (batch) data = data.filter((s) => s.batch === batch)
   }
   if (status) data = data.filter((s) => s.ebc_status === status)
   if (search) {
@@ -345,6 +555,8 @@ function updateStudent(id, fields, requester) {
     roll_no: fields.roll_no ?? s.roll_no,
     ebc_status: fields.ebc_status ?? s.ebc_status,
     remark: fields.remark ?? s.remark,
+    year: fields.year ?? s.year,
+    batch: fields.batch ?? s.batch,
     enrollment_no: fields.enrollment_no ?? s.enrollment_no,
     class: fields.class ?? s.class,
     semester: fields.semester ?? s.semester,
@@ -430,7 +642,10 @@ function dashboardSummary(role, user, branch_id) {
 function extendedSummary(role, user, branch_id) {
   let stu = students.slice()
   let gList = guardians.slice()
-  if (role === ROLES.HOD) {
+  if (role === ROLES.GUARDIAN) {
+    stu = stu.filter((s) => s.guardian_id === user.id)
+    gList = gList.filter((g) => g.id === user.id)
+  } else if (role === ROLES.HOD) {
     stu = stu.filter((s) => s.branch_id === user.branch_id)
     gList = gList.filter((g) => g.branch_id === user.branch_id)
   } else if ((role === ROLES.DEAN || role === ROLES.PRINCIPAL) && branch_id) {
@@ -465,6 +680,7 @@ module.exports = {
   users,
   guardians,
   students,
+  meetings,
   getUserByEmail,
   getUserByUsername,
   getUserById,
@@ -474,6 +690,8 @@ module.exports = {
   listGuardiansByBranch,
   createStudent,
   createStudentByGuardian,
+  createMeeting,
+  listMeetings,
   listStudents,
   getStudentById,
   getStudentByRollNo,

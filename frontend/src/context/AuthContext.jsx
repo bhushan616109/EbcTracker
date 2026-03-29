@@ -20,13 +20,32 @@ export function AuthProvider({ children }) {
   }, [token])
 
   const login = async (email, password) => {
-    const res = await axios.post('/auth/login', { identifier: email, password })
+    try {
+      const res = await axios.post('/auth/login', { identifier: email, password })
+      setToken(res.data.token)
+      setUser(res.data.user)
+      localStorage.setItem('token', res.data.token)
+      localStorage.setItem('user', JSON.stringify(res.data.user))
+    } catch (err) {
+      try {
+        const res2 = await axios.post('/auth/login-guardian', { username: email, password })
+        setToken(res2.data.token)
+        setUser(res2.data.user)
+        localStorage.setItem('token', res2.data.token)
+        localStorage.setItem('user', JSON.stringify(res2.data.user))
+      } catch (e2) {
+        throw err
+      }
+    }
+  }
+
+  const loginGuardian = async (username, password) => {
+    const res = await axios.post('/auth/login-guardian', { username, password })
     setToken(res.data.token)
     setUser(res.data.user)
     localStorage.setItem('token', res.data.token)
     localStorage.setItem('user', JSON.stringify(res.data.user))
   }
-
   // unified login via /auth/login supports email or username
 
   const logout = () => {
@@ -37,7 +56,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ token, user, login, logout }}>
+    <AuthContext.Provider value={{ token, user, login, loginGuardian, logout }}>
       {children}
     </AuthContext.Provider>
   )

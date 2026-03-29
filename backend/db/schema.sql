@@ -19,6 +19,8 @@ CREATE TABLE IF NOT EXISTS students (
   roll_no VARCHAR(40) NOT NULL UNIQUE,
   branch_id INTEGER NOT NULL REFERENCES branches(id) ON DELETE CASCADE,
   created_by_admin_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  year VARCHAR(20) NULL,
+  batch VARCHAR(20) NULL,
   ebc_status VARCHAR(40) NOT NULL CHECK (ebc_status IN ('Pending','Approved','Rejected','Rejected with Query')),
   remark TEXT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
@@ -26,4 +28,5 @@ CREATE TABLE IF NOT EXISTS students (
 
 CREATE INDEX IF NOT EXISTS idx_students_branch ON students(branch_id);
 CREATE INDEX IF NOT EXISTS idx_students_admin ON students(created_by_admin_id);
-CREATE INDEX IF NOT EXISTS idx_students_status ON students(ebc_status);
+CREATE INDEX IF NOT EXISTS idx_students_year ON students(year);
+CREATE INDEX IF NOT EXISTS idx_students_batch ON students(batch);

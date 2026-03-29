@@ -43,6 +43,32 @@ export const guardianListStudents = async () => {
   return res.data
 }
 
+export const guardianUpdateStudent = async (id, payload) => {
+  const res = await axios.put(`/guardians/me/students/${id}`, payload)
+  return res.data
+}
+
+export const guardianDeleteStudent = async (id) => {
+  const res = await axios.delete(`/guardians/me/students/${id}`)
+  return res.status === 204
+}
+
+export const fetchStudentById = async (id) => {
+  const res = await axios.get(`/students/${id}`)
+  return res.data
+}
+
+export const guardianListMeetings = async (student_id) => {
+  const url = student_id ? `/guardians/me/meetings?student_id=${student_id}` : '/guardians/me/meetings'
+  const res = await axios.get(url)
+  return res.data
+}
+
+export const guardianAddMeeting = async (payload) => {
+  const res = await axios.post('/guardians/me/meetings', payload)
+  return res.data
+}
+
 export const fetchExtendedDashboard = async (branch_id) => {
   const params = branch_id ? { branch_id } : {}
   const res = await axios.get('/dashboard/extended', { params })

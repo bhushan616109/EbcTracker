@@ -16,6 +16,8 @@ router.post(
   body('name').isString().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
   body('roll_no').isString().isLength({ min: 1 }).withMessage('Roll No must be at least 1 character'),
   body('branch_id').optional().isInt().withMessage('Branch must be a valid integer'),
+  body('year').optional().isString(),
+  body('batch').optional().isString(),
   body('enrollment_no').optional().isString(),
   body('class').optional().isString(),
   body('semester').optional().isIn(['I','II','III','IV','V','VI']).withMessage('Invalid semester'),
@@ -56,6 +58,8 @@ router.post(
           name,
           roll_no,
           branch_id,
+          year: req.body.year,
+          batch: req.body.batch,
           created_by_admin_id: req.user.id,
           enrollment_no: req.body.enrollment_no,
           class: req.body.class,
@@ -79,10 +83,10 @@ router.post(
         const { rows: existing } = await db.query('SELECT id FROM students WHERE roll_no=$1', [roll_no]);
         if (existing.length) return res.status(409).json({ message: 'Roll number already exists' });
         const { rows } = await db.query(
-          `INSERT INTO students (name, roll_no, branch_id, created_by_admin_id, ebc_status, remark, created_at)
-           VALUES ($1,$2,$3,$4,$5,$6, NOW())
-           RETURNING id, name, roll_no, branch_id, created_by_admin_id, ebc_status, remark, created_at`,
-          [name, roll_no, branch_id, req.user.id, EBC_STATUS.PENDING, null]
+          `INSERT INTO students (name, roll_no, branch_id, created_by_admin_id, year, batch, ebc_status, remark, created_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8, NOW())
+           RETURNING id, name, roll_no, branch_id, created_by_admin_id, year, batch, ebc_status, remark, created_at`,
+          [name, roll_no, branch_id, req.user.id, req.body.year || null, req.body.batch || null, EBC_STATUS.PENDING, null]
         );
         return res.status(201).json(rows[0]);
       }
@@ -100,15 +104,18 @@ router.get(
   query('search').optional().isString(),
   query('page').optional().isInt({ min: 1 }),
   query('limit').optional().isInt({ min: 1, max: 100 }),
+  query('branch_id').optional().isInt(),
+  query('year').optional().isString(),
+  query('batch').optional().isString(),
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
     try {
-      const { status, search } = req.query;
+      const { status, search, branch_id, year, batch } = req.query;
       const page = Number(req.query.page || 1);
       const limit = Number(req.query.limit || 10);
       if (useMem) {
-        const result = store.listStudents({ role: req.user.role, user: req.user, status, search, page, limit });
+        const result = store.listStudents({ role: req.user.role, user: req.user, status, search, page, limit, branch_id, year, batch });
         return res.json(result);
       } else {
         const offset = (page - 1) * limit;
@@ -120,6 +127,24 @@ router.get(
         } else if (req.user.role === ROLES.HOD) {
           params.push(req.user.branch_id);
           conditions.push(`branch_id = $${params.length}`);
+        } else if (req.user.role === ROLES.DEAN) {
+          if (branch_id) {
+            params.push(branch_id);
+            conditions.push(`branch_id = $${params.length}`);
+          }
+        } else if (req.user.role === ROLES.PRINCIPAL) {
+          if (branch_id) {
+            params.push(branch_id);
+            conditions.push(`branch_id = $${params.length}`);
+          }
+          if (year) {
+            params.push(year);
+            conditions.push(`year = $${params.length}`);
+          }
+          if (batch) {
+            params.push(batch);
+            conditions.push(`batch = $${params.length}`);
+          }
         }
         if (status) {
           params.push(status);
@@ -131,7 +156,7 @@ router.get(
         }
         const where = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
         const dataQuery = `
-          SELECT s.id, s.name, s.roll_no, s.branch_id, s.created_by_admin_id, s.ebc_status, s.remark, s.created_at,
+          SELECT s.id, s.name, s.roll_no, s.branch_id, s.created_by_admin_id, s.year, s.batch, s.ebc_status, s.remark, s.created_at,
                  b.branch_name, u.name AS admin_name
           FROM students s
           JOIN branches b ON b.id = s.branch_id

@@ -31,14 +31,6 @@ export default function StatusCards({ totals, extendedTotals }) {
             <div style={{ fontSize: 12, color: '#666' }}>Scholarship Approved</div>
             <div style={{ fontSize: 22, fontWeight: 700 }}>{ext.scholarship_approved || 0}</div>
           </div>
-          <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12 }}>
-            <div style={{ fontSize: 12, color: '#666' }}>Scholarship Not Approved</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{ext.scholarship_not_approved || 0}</div>
-          </div>
-          <div style={{ border: '1px solid #ddd', borderRadius: 8, padding: 12 }}>
-            <div style={{ fontSize: 12, color: '#666' }}>Weak Students</div>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>{ext.weak_students || 0}</div>
-          </div>
         </>
       )}
     </div>

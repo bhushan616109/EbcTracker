@@ -37,12 +37,14 @@ WITH admin_a AS (
 ), cse AS (
   SELECT id AS branch_id FROM branches WHERE branch_name='CSE'
 )
-INSERT INTO students (name, roll_no, branch_id, created_by_admin_id, ebc_status, remark, created_at)
+INSERT INTO students (name, roll_no, branch_id, created_by_admin_id, year, batch, ebc_status, remark, created_at)
 SELECT 
   CONCAT('Student ', i)::varchar(120) AS name,
   CONCAT('CSE', LPAD(i::text, 3, '0'))::varchar(40) AS roll_no,
   (SELECT branch_id FROM cse) AS branch_id,
   (SELECT admin_id FROM admin_a) AS created_by_admin_id,
+  (ARRAY['1st Year','2nd Year','3rd Year','4th Year'])[((i-1)%4)+1]::varchar(20) AS year,
+  (ARRAY['2023-2027','2022-2026','2021-2025','2020-2024'])[((i-1)%4)+1]::varchar(20) AS batch,
   (ARRAY['Pending','Approved','Rejected','Rejected with Query'])[((random()*3)::int + 1)]::varchar(40) AS ebc_status,
   CASE WHEN ((random()*3)::int)=3 THEN 'Need clarification on documents' ELSE NULL END,
   NOW() - (i || ' days')::interval

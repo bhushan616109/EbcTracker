@@ -20,7 +20,8 @@ export default function StudentsTable({ items, page, limit, total, onPage, canWr
             <th style={{ textAlign: 'left', padding: 8 }}>Name</th>
             <th style={{ textAlign: 'left', padding: 8 }}>Branch</th>
             <th style={{ textAlign: 'left', padding: 8 }}>Admin</th>
-            <th style={{ textAlign: 'left', padding: 8 }}>Class</th>
+            <th style={{ textAlign: 'left', padding: 8 }}>Year</th>
+            <th style={{ textAlign: 'left', padding: 8 }}>Batch</th>
             <th style={{ textAlign: 'left', padding: 8 }}>EBC Status</th>
             <th style={{ textAlign: 'left', padding: 8 }}>Remark</th>
             {canWrite && <th style={{ textAlign: 'left', padding: 8 }}>Actions</th>}
@@ -34,7 +35,8 @@ export default function StudentsTable({ items, page, limit, total, onPage, canWr
                 <td style={{ padding: 8 }}>{s.name}</td>
                 <td style={{ padding: 8 }}>{s.branch_name}</td>
                 <td style={{ padding: 8 }}>{s.admin_name}</td>
-                <td style={{ padding: 8 }}>{s.class}</td>
+                <td style={{ padding: 8 }}>{s.year || '-'}</td>
+                <td style={{ padding: 8 }}>{s.batch || '-'}</td>
                 <td style={{ padding: 8, color: statusColor(s.ebc_status) }}>{s.ebc_status}</td>
                 <td style={{ padding: 8 }}>{s.remark || '-'}</td>
                 {canWrite && (

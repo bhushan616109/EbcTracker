@@ -19,11 +19,12 @@ Students
   - Response: student
 - GET /students
   - Roles: ADMIN, HOD, DEAN, PRINCIPAL
-  - Query: status?, search?, page?, limit?
+  - Query: status?, search?, page?, limit?, branch_id?, year?, batch?
   - RBAC:
     - ADMIN: only own students
     - HOD: only own branch
-    - DEAN/PRINCIPAL: all
+    - DEAN: branch_id optional
+    - PRINCIPAL: branch_id, year, batch optional
   - Response: { items, page, limit, total }
 - GET /students/:id
   - Roles: ADMIN, HOD, DEAN, PRINCIPAL
