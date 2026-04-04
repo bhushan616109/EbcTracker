@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import axios from 'axios'
-axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://localhost:4003/api'
 
 const AuthContext = createContext(null)
 
@@ -24,6 +24,7 @@ export function AuthProvider({ children }) {
       const res = await axios.post('/auth/login', { identifier: email, password })
       setToken(res.data.token)
       setUser(res.data.user)
+      axios.defaults.headers.common.Authorization = `Bearer ${res.data.token}`
       localStorage.setItem('token', res.data.token)
       localStorage.setItem('user', JSON.stringify(res.data.user))
     } catch (err) {
@@ -31,6 +32,7 @@ export function AuthProvider({ children }) {
         const res2 = await axios.post('/auth/login-guardian', { username: email, password })
         setToken(res2.data.token)
         setUser(res2.data.user)
+        axios.defaults.headers.common.Authorization = `Bearer ${res2.data.token}`
         localStorage.setItem('token', res2.data.token)
         localStorage.setItem('user', JSON.stringify(res2.data.user))
       } catch (e2) {
@@ -43,6 +45,7 @@ export function AuthProvider({ children }) {
     const res = await axios.post('/auth/login-guardian', { username, password })
     setToken(res.data.token)
     setUser(res.data.user)
+    axios.defaults.headers.common.Authorization = `Bearer ${res.data.token}`
     localStorage.setItem('token', res.data.token)
     localStorage.setItem('user', JSON.stringify(res.data.user))
   }

@@ -30,10 +30,10 @@ export default function Login() {
     setRole(r)
     setMode(r === 'GUARDIAN' ? 'guardian' : 'user')
     const sample = {
-      PRINCIPAL: 'principal',
-      DEAN: 'dean',
-      HOD: 'hod.cse',
-      GUARDIAN: 'admin.bhakti.cse'
+      PRINCIPAL: 'principal@example.com',
+      DEAN: 'dean@example.com',
+      HOD: 'hod.cse@example.com',
+      GUARDIAN: 'guardian.cse1'
     }
     setEmail(sample[r] || '')
     setPassword('Password123!')
@@ -80,7 +80,7 @@ export default function Login() {
             {error && <div style={{ color: 'red', marginBottom: 8 }}>{error}</div>}
             <button type="submit" disabled={loading} style={{ padding: '10px 18px', borderRadius: 8, border: 'none', background: '#6d28d9', color: '#fff' }}>{loading ? 'Logging in...' : 'Login'}</button>
             <p style={{ marginTop: 8, color: '#6b7280' }}>
-              Samples: principal, dean, hod.cse, admin.bhakti.cse, admin.a.civil, admin.a.mech, admin.a.entc
+              Samples: principal@example.com, dean@example.com, hod.cse@example.com, admin.a.cse@example.com
             </p>
           </form>
         </div>

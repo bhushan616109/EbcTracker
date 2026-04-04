@@ -59,14 +59,21 @@ router.post(
     const { identifier, password } = req.body;
     try {
       if (useMem) {
-        const lower = String(identifier).toLowerCase()
-        let user = identifier.includes('@') ? store.getUserByEmail(identifier) : store.getUserByUsername(identifier);
+        const raw = String(identifier || '')
+        const lower = raw.trim().toLowerCase()
+        let user = raw.includes('@') ? store.getUserByEmail(lower) : store.getUserByUsername(lower);
         if (!user && !identifier.includes('@')) {
           user = (store.users || []).find((u) => String(u.email || '').toLowerCase().split('@')[0] === lower) || null
         }
-        if (!user) return res.status(401).json({ message: 'Invalid credentials' });
+        if (!user) {
+          console.log('login failed: user not found', lower)
+          return res.status(401).json({ message: 'Invalid credentials' });
+        }
         const ok = await bcrypt.compare(password, user.password);
-        if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
+        if (!ok) {
+          console.log('login failed: password mismatch for', lower)
+          return res.status(401).json({ message: 'Invalid credentials' });
+        }
         const token = jwt.sign(
           { id: user.id, role: user.role, branch_id: user.branch_id, name: user.name },
           process.env.JWT_SECRET || 'dev_secret',
@@ -77,10 +84,13 @@ router.post(
           user: { id: user.id, name: user.name, email: user.email, role: user.role, branch_id: user.branch_id }
         });
       } else {
-        const email = identifier;
+        const identLower = String(identifier).toLowerCase();
         const { rows } = await db.query(
-          'SELECT id, name, email, password, role, branch_id FROM users WHERE email=$1',
-          [email]
+          `SELECT id, name, email, password, role, branch_id
+           FROM users
+           WHERE LOWER(email) = $1 OR LOWER(split_part(email,'@',1)) = $1
+           LIMIT 1`,
+          [identLower]
         );
         if (!rows.length) return res.status(401).json({ message: 'Invalid credentials' });
         const user = rows[0];

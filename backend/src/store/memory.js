@@ -8,7 +8,7 @@ let branches = [
   { id: 3, branch_name: 'MECH' }
 ]
 
-const passwordHash = '$2a$10$ejz4dWmzg.1sjSAu9iuScO6ASZBUAWvoVPQ/ukW3qOlipusCBb1eS'
+const passwordHash = '$2a$10$LEymx1GStK8xTn3Le/wjU.amIvmRzpI7hUUr3z1u2XBS.rP8i/nDq'
 
 let users = [
   { id: 1, name: 'Principal User', email: 'principal@example.com', username: 'principal', password: passwordHash, role: ROLES.PRINCIPAL, branch_id: null },
@@ -73,9 +73,18 @@ let meetingIdCounter = 1
     principal.username = 'principal'
     changed = true
   }
-  const dean = users.find((u) => u.role === ROLES.DEAN)
-  if (dean && !dean.username) {
+  let dean = users.find((u) => u.role === ROLES.DEAN) || users.find((u) => u.email === 'dean@example.com')
+  if (!dean) {
+    const newUserId = users.length ? Math.max(...users.map((u) => u.id)) + 1 : 1
+    dean = { id: newUserId, name: 'Dean User', email: 'dean@example.com', username: 'dean', password: passwordHash, role: ROLES.DEAN, branch_id: null }
+    users.push(dean)
+    changed = true
+  } else if (!dean.username) {
     dean.username = 'dean'
+    changed = true
+  }
+  if (dean && dean.password !== passwordHash) {
+    dean.password = passwordHash
     changed = true
   }
   const hodCse = users.find((u) => u.email === 'hod.cse@example.com')
