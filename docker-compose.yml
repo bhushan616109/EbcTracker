@@ -1,0 +1,53 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ebc-postgres
+    environment:
+      POSTGRES_DB: college_guardian
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d college_guardian"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: ebc-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PORT: 4000
+      FRONTEND_URL: http://localhost:5173
+      JWT_SECRET: super_secret_jwt_key
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: college_guardian
+      DB_SSL: "false"
+      USE_MEMORY_STORE: "false"
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ebc-frontend
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: /api
+      VITE_BACKEND_TARGET: http://backend:4000
+    ports:
+      - "5173:5173"
+
+volumes:
+  postgres_data:
