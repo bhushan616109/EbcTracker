@@ -6,30 +6,50 @@ ON CONFLICT (branch_name) DO NOTHING;
 -- Seed users (password: Password123!)
 -- Principal
 INSERT INTO users (name, email, password, role, branch_id)
-VALUES ('Principal User', 'principal@example.com', '$2a$10$0bYVnUT4cOAu8wC6OJpVSeiT5GgLkF7cFZBqYzYF1bIO5zKZmx6Iq', 'PRINCIPAL', NULL)
-ON CONFLICT (email) DO NOTHING;
+VALUES ('Principal User', 'principal@example.com', '$2a$10$LEymx1GStK8xTn3Le/wjU.amIvmRzpI7hUUr3z1u2XBS.rP8i/nDq', 'PRINCIPAL', NULL)
+ON CONFLICT (email) DO UPDATE
+SET name = EXCLUDED.name,
+    password = EXCLUDED.password,
+    role = EXCLUDED.role,
+    branch_id = EXCLUDED.branch_id;
 
 -- Dean
 INSERT INTO users (name, email, password, role, branch_id)
-VALUES ('Dean User', 'dean@example.com', '$2a$10$0bYVnUT4cOAu8wC6OJpVSeiT5GgLkF7cFZBqYzYF1bIO5zKZmx6Iq', 'DEAN', NULL)
-ON CONFLICT (email) DO NOTHING;
+VALUES ('Dean User', 'dean@example.com', '$2a$10$LEymx1GStK8xTn3Le/wjU.amIvmRzpI7hUUr3z1u2XBS.rP8i/nDq', 'DEAN', NULL)
+ON CONFLICT (email) DO UPDATE
+SET name = EXCLUDED.name,
+    password = EXCLUDED.password,
+    role = EXCLUDED.role,
+    branch_id = EXCLUDED.branch_id;
 
 -- HOD CSE
 INSERT INTO users (name, email, password, role, branch_id)
-SELECT 'CSE HOD', 'hod.cse@example.com', '$2a$10$0bYVnUT4cOAu8wC6OJpVSeiT5GgLkF7cFZBqYzYF1bIO5zKZmx6Iq', 'HOD', b.id
+SELECT 'CSE HOD', 'hod.cse@example.com', '$2a$10$LEymx1GStK8xTn3Le/wjU.amIvmRzpI7hUUr3z1u2XBS.rP8i/nDq', 'HOD', b.id
 FROM branches b WHERE b.branch_name='CSE'
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (email) DO UPDATE
+SET name = EXCLUDED.name,
+    password = EXCLUDED.password,
+    role = EXCLUDED.role,
+    branch_id = EXCLUDED.branch_id;
 
 -- Admins
 INSERT INTO users (name, email, password, role, branch_id)
-SELECT 'CSE Admin A', 'admin.a.cse@example.com', '$2a$10$0bYVnUT4cOAu8wC6OJpVSeiT5GgLkF7cFZBqYzYF1bIO5zKZmx6Iq', 'ADMIN', b.id
+SELECT 'CSE Admin A', 'admin.a.cse@example.com', '$2a$10$LEymx1GStK8xTn3Le/wjU.amIvmRzpI7hUUr3z1u2XBS.rP8i/nDq', 'ADMIN', b.id
 FROM branches b WHERE b.branch_name='CSE'
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (email) DO UPDATE
+SET name = EXCLUDED.name,
+    password = EXCLUDED.password,
+    role = EXCLUDED.role,
+    branch_id = EXCLUDED.branch_id;
 
 INSERT INTO users (name, email, password, role, branch_id)
-SELECT 'CSE Admin B', 'admin.b.cse@example.com', '$2a$10$0bYVnUT4cOAu8wC6OJpVSeiT5GgLkF7cFZBqYzYF1bIO5zKZmx6Iq', 'ADMIN', b.id
+SELECT 'CSE Admin B', 'admin.b.cse@example.com', '$2a$10$LEymx1GStK8xTn3Le/wjU.amIvmRzpI7hUUr3z1u2XBS.rP8i/nDq', 'ADMIN', b.id
 FROM branches b WHERE b.branch_name='CSE'
-ON CONFLICT (email) DO NOTHING;
+ON CONFLICT (email) DO UPDATE
+SET name = EXCLUDED.name,
+    password = EXCLUDED.password,
+    role = EXCLUDED.role,
+    branch_id = EXCLUDED.branch_id;
 
 -- Sample students for Admin A (30)
 WITH admin_a AS (

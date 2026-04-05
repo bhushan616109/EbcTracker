@@ -33,9 +33,15 @@ services:
       DB_PASSWORD: postgres
       DB_NAME: college_guardian
       DB_SSL: "false"
-      USE_MEMORY_STORE: "false"
+      USE_MEMORY_STORE: "true"
+      DEMO_BHAKTI_ADMIN: "true"
+      DEMO_CIVIL_ADMIN: "true"
+      DEMO_MECH_ADMIN: "true"
+      DEMO_ENTC_ADMIN: "true"
     ports:
       - "4000:4000"
+    volumes:
+      - ./backend/data:/app/data
 
   frontend:
     build:
